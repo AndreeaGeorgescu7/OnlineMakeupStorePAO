@@ -4,6 +4,7 @@ import classes.*;
 import exceptions.InvalidDataExc;
 import persistence.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 
 
@@ -206,5 +207,97 @@ public class ProductService {
     public Delivery returnMinimum() {
         return delivery1Repo.getMinim();
     }
+
+    public void readLips(){
+        try {
+            List<Lips> l=new ArrayList<>();
+
+             l = ReaderWriterIO.readLips("LipsCSV.csv");
+            for (Lips c : l) {
+               product1Repo.add(c);
+            }
+            Audit.writeAuditCSV("Read liptick from CSV read file");
+        } catch ( IOException | InvalidDataExc e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void addLips(Lips c) throws IOException {
+        //product1Repo.add(c);
+
+        try {
+
+             //ReaderWriterIO.writeLips("LipsCSV.csv", c);
+            ReaderWriterIO.writeProduct(c,c.getClass(),"C:\\Users\\Andreea\\IdeaProjects\\testpao\\LipsCSV.csv");
+
+            Audit.writeAuditCSV("Write lipstick to CSV");
+        } catch (InvalidDataExc e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+
+    }
+    public void readFoundation(){
+        try {
+            List<Foundation> l=new ArrayList<>();
+
+            l = ReaderWriterIO.readFoundation("FoundationCSV.csv");
+            for (Foundation c : l) {
+                product1Repo.add(c);
+            }
+            Audit.writeAuditCSV("Read foundation from CSV read file");
+        } catch ( IOException | InvalidDataExc e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void addFoundation(Foundation c) throws IOException {
+        //product1Repo.add(c);
+
+        try {
+
+            //ReaderWriterIO.writeFoundation("FoundationCSV.csv", c);
+            ReaderWriterIO.writeProduct(c,c.getClass(),"C:\\Users\\Andreea\\IdeaProjects\\testpao\\FoundationCSV.csv");
+            Audit.writeAuditCSV("Write foundation to CSV");
+        } catch (InvalidDataExc e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+
+    }
+    public void readEyeshadow(){
+        try {
+            List<Eyeshadow> l=new ArrayList<>();
+
+            l = ReaderWriterIO.readEyeshadow("EyeshadowCSV.csv");
+            for (Eyeshadow c : l) {
+                product1Repo.add(c);
+            }
+            Audit.writeAuditCSV("Read eyeshadow from CSV read file");
+        } catch ( IOException | InvalidDataExc e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void addEyeshadow(Eyeshadow c) throws IOException {
+        //product1Repo.add(c);
+
+        try {
+
+            //ReaderWriterIO.writeEyeshadow("EyeshadowCSV.csv", c);
+            ReaderWriterIO.writeProduct(c,c.getClass(),"C:\\Users\\Andreea\\IdeaProjects\\testpao\\EyeshadowCSV.csv");
+            Audit.writeAuditCSV("Write Eyeshadow to CSV");
+        } catch (InvalidDataExc e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+
+
 }
 

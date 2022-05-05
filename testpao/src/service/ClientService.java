@@ -2,13 +2,14 @@ package service;
 
 import classes.Client;
 import classes.Delivery;
-import classes.Employee;
+import classes.*;
 import classes.Order;
 import persistence.ClientRepo;
 import exceptions.InvalidDataExc;
 import persistence.DeliveryRepo;
 
 
+import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -103,6 +104,36 @@ public class ClientService {
                 return true;
         return false;
 
+
+    }
+    public void readClient(){
+        try {
+             List<Client> client=new ArrayList<Client>();
+
+            client = ReaderWriterIO.readClient("ClientCSV.csv");
+            for (Client c : client) {
+                client1Repo.add(c);
+            }
+
+            Audit.writeAuditCSV("Read client from CSV read file");
+        } catch ( IOException | InvalidDataExc e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void addClient(Client c) throws IOException {
+       // client1Repo.add(c);
+
+            try {
+
+                ReaderWriterIO.writeClient("ClientCSV.csv", c);
+
+                Audit.writeAuditCSV("Write client to CSV");
+            } catch (InvalidDataExc e) {
+                e.printStackTrace();
+                System.out.println(e.getMessage());
+            }
 
     }
 

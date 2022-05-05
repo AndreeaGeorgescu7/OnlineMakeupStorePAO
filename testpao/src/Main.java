@@ -4,6 +4,7 @@ import service.*;
 import exceptions.InvalidDataExc;
 
 
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,12 @@ public class Main {
 
 
         Main app = new Main();
+
+
+        service.readClient();
+        serviceP.readLips();
+        serviceP.readEyeshadow();
+        serviceP.readFoundation();
 
         /*adding some customers*/
         List<String> in_cart = new ArrayList<String>();
@@ -290,9 +297,12 @@ public class Main {
 
             try {
                 service.registerNewClient(name, surname, gender.charAt(0), Integer.parseInt(age), in_cart, email, phone, over18, oldPayments, Integer.parseInt(yearsOfFidelity), ord);
-
+                Client l2=new Client(name, surname, gender.charAt(0), Integer.parseInt(age), in_cart, email, phone, over18, oldPayments, Integer.parseInt(yearsOfFidelity), ord);
+                service.addClient(l2);
             } catch (InvalidDataExc invalidData) {
                 System.out.println(invalidData.getMessage());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         } else {
             System.out.println("Invalid age or phone or email!");
@@ -400,9 +410,12 @@ public class Main {
 
                 try {
                     serviceP.registerNewLips(product_name, brand, valability, Float.parseFloat(price), ingredients, shade, type);
-
+                   Lips l2=new Lips(product_name, brand, valability, Float.parseFloat(price), ingredients, shade, type);
+                    serviceP.addLips(l2);
                 } catch (InvalidDataExc invalidData) {
                     System.out.println(invalidData.getMessage());
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             } else if (type_of_product == 2) {
                 System.out.print("Nr of colors: ");
@@ -414,8 +427,9 @@ public class Main {
                 }
                 try {
                     serviceP.registerNewEyeshadow(product_name, brand, valability, Float.parseFloat(price), ingredients, colors);
-
-                } catch (InvalidDataExc invalidData) {
+                    Eyeshadow l3=new Eyeshadow(product_name, brand, valability, Float.parseFloat(price), ingredients, colors);
+                    serviceP.addEyeshadow(l3);
+                } catch (InvalidDataExc | IOException invalidData) {
                     System.out.println(invalidData.getMessage());
                 }
             } else {
@@ -425,8 +439,9 @@ public class Main {
                 String forTypeOfSKin = s.nextLine();
                 try {
                     serviceP.registerNewFoundation(product_name, brand, valability, Float.parseFloat(price), ingredients, foundaionShade, forTypeOfSKin);
-
-                } catch (InvalidDataExc invalidData) {
+                    Foundation l2=new Foundation(product_name, brand, valability, Float.parseFloat(price), ingredients, foundaionShade, forTypeOfSKin);
+                    serviceP.addFoundation(l2);
+                } catch (InvalidDataExc | IOException invalidData) {
                     System.out.println(invalidData.getMessage());
                 }
             }
@@ -441,6 +456,9 @@ public class Main {
         System.out.println("Products:\n---------------------");
         for (Product e : serviceP.getAllProducts()) {
             System.out.println(e.getProduct_name() + "  " + e.getBrand() + " " + e.getPrice() + " lei");
+
+
+
         }
 
     }
@@ -658,9 +676,14 @@ public class Main {
     private void seeDeliveryDetails() {
         for (Client e : service.getAllClients())
             if (e.getEmail().equals(emailRegister))
-                System.out.println(ordDev1Repo.get(e.getOrd()).getCompanyName() + " " + ordDev1Repo.get(e.getOrd()).getDeliveryMan() + " " + ordDev1Repo.get(e.getOrd()).getPhoneNumber());
-
+                try {
+                    System.out.println(ordDev1Repo.get(e.getOrd()).getCompanyName() + " " + ordDev1Repo.get(e.getOrd()).getDeliveryMan() + " " + ordDev1Repo.get(e.getOrd()).getPhoneNumber());
+                }
+                catch(NullPointerException e2) {
+                    System.out.println("NullPointerException!");
+                }
     }
+
 
 
 }

@@ -127,4 +127,10 @@ public class Product {
                 ", ingredients=" + ingredients +
                 '}';
     }
+    public String stringFormat() {
+        return '\n'+ product_name + ',' +
+                brand + ',' +
+                 valability + ',' +
+                + price ;
+    }
 }
