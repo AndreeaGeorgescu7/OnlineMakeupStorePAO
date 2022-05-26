@@ -53,11 +53,12 @@ public class ProductRepo implements GenericRepo<Product, Float> {
         storage = newStorage;
     }
 
+
     @Override
     public int getSize() {
         return storage.length;
     }
-
+    ///the actual number of elements !=null
     @Override
     public int getNumberOf() {
         int nr = 0;

@@ -13,8 +13,9 @@ import java.util.Scanner;
 
 public class Main {
 
-    static private ClientService service = new ClientService();
-    static private ProductService serviceP = new ProductService();
+    static DBConnection dbConnection = DBConnection.getInstance();
+    static private ClientService service = new ClientService(dbConnection);
+    static private ProductService serviceP = new ProductService(dbConnection);
     static private OrderDeliveryRepo ordDev1Repo = new OrderDeliveryRepo();
     static String emailRegister;
     static Integer status;
@@ -34,51 +35,24 @@ public class Main {
 
         Main app = new Main();
 
-
+        ///loading from the CSV files
         service.readClient();
         serviceP.readLips();
         serviceP.readEyeshadow();
         serviceP.readFoundation();
 
-        /*adding some customers*/
-        List<String> in_cart = new ArrayList<String>();
-        List<Float> oldP = new ArrayList<Float>();
-        Order o1 = new Order();
-        service.registerNewClient("Georgescu", "Andreea", 'F', 20, in_cart, "andra@gmail.com", "0732519096", true, oldP, 3, o1);
-        List<String> in_cart2 = new ArrayList<String>();
-        List<Float> oldP2 = new ArrayList<Float>();
-        Order o2 = new Order();
-        service.registerNewClient("Marin", "Cristian", 'M', 25, in_cart2, "cristi@gmail.com", "0732519094", true, oldP2, 0, o2);
-
-        /*adding some products, one of each kind*/
-        List<String> ingr1 = new ArrayList<String>();
-        ingr1.add("acid");
-        ingr1.add("mere Bio");
-        serviceP.registerNewLips("ruj", "dior", "21/10/2023", 150f, ingr1, "red", "matte");
-
-        List<String> ingr2 = new ArrayList<String>();
-        ingr2.add("acid");
-        ingr2.add("crema de vanilie");
-        List<String> colors = new ArrayList<String>();
-        colors.add("albastru");
-        colors.add("roz");
-        colors.add("galben");
-        colors.add("maro");
-        serviceP.registerNewEyeshadow("amor", "anasthasia", "21/10/2050", 350f, ingr2, colors);
-
-        List<String> ingr3 = new ArrayList<String>();
-        ingr3.add("pudra de orez BIO");
-        ingr3.add("pigment mat");
-        ingr3.add("ulei de jojoba");
-        serviceP.registerNewFoundation("belle", "benefit", "12/12/2023", 200f, ingr3, "C4", "dry skin");
-
+        //loading from DataBase
+        service.loadFromDB();
+        serviceP.loadFromDB();
 
         /*adding some delivery men*/
         serviceP.registerNewDeliveryMan("Cargus", "Matei Calin", "0741586752", 0, "car");
         serviceP.registerNewDeliveryMan("FanCourier", "Bogdan Andrei", "0733586345", 3, "bike");
 
+
+         //You can login as ADMINISTRATOR( password-"123")/ CLIENT(email ex:anda@gmail.com)
         while(true) {
-            System.out.println("Schimba cont-0/ Iesire-1");
+            System.out.println("Change account-0/ Exit-1");
             Integer com = Integer.parseInt(s.nextLine());
             if (com == 0) {
                 System.out.println("Administrator-0 / Client-1");
@@ -97,7 +71,7 @@ public class Main {
                             app.execute(option);
 
                         }
-                    else System.out.println("Worong password.Try again!");
+                    else System.out.println("Wrong password.Try again!");
                 } else {
                     System.out.print("Email to log in: ");
                     emailRegister = s.nextLine();
@@ -137,6 +111,8 @@ public class Main {
             System.out.println("18. list all delivery team");
             System.out.println("19. remove a delivery man");
             System.out.println("20. Who is in charge of orders?");
+            System.out.println("21. Update the name of a client");
+            System.out.println("22. Update the price of a product");
         } else {
 
             System.out.println("3. exit");
@@ -157,7 +133,7 @@ public class Main {
         System.out.println("Enter your option: ");
         try {
             int option = readInt();
-            if (option >= 1 && option <= 20) {
+            if (option >= 1 && option <= 22) {
                 return option;
             }
         } catch (InvalidDataExc invalid) {
@@ -253,6 +229,25 @@ public class Main {
                 listOrDevREPO();
                 break;
 
+            case 21:
+                System.out.print("Email: ");
+                email = s.nextLine();
+                System.out.print("Name: ");
+                name = s.nextLine();
+                updateNameClient(email,name);
+                break;
+
+            case 22:
+                System.out.print("Product Name: ");
+                String product_name = s.nextLine();
+                System.out.print("Brand: ");
+                String brand2 = s.nextLine();
+                System.out.print("Price: ");
+                float p = Float.parseFloat(s.nextLine());
+                updatePriceProd(product_name,brand2,p);
+
+                break;
+
 
         }
     }
@@ -296,8 +291,10 @@ public class Main {
         if (age.matches("^\\d+$") && phone.matches("^(\\+4|)?(07[0-8]{1}[0-9]{1}|02[0-9]{2}|03[0-9]{2}){1}?(\\s|\\.|\\-)?([0-9]{3}(\\s|\\.|\\-|)){2}$") && email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
 
             try {
+                ///add in repo
                 service.registerNewClient(name, surname, gender.charAt(0), Integer.parseInt(age), in_cart, email, phone, over18, oldPayments, Integer.parseInt(yearsOfFidelity), ord);
                 Client l2=new Client(name, surname, gender.charAt(0), Integer.parseInt(age), in_cart, email, phone, over18, oldPayments, Integer.parseInt(yearsOfFidelity), ord);
+                //add in CSV file
                 service.addClient(l2);
             } catch (InvalidDataExc invalidData) {
                 System.out.println(invalidData.getMessage());
@@ -455,7 +452,7 @@ public class Main {
 
         System.out.println("Products:\n---------------------");
         for (Product e : serviceP.getAllProducts()) {
-            System.out.println(e.getProduct_name() + "  " + e.getBrand() + " " + e.getPrice() + " lei");
+            System.out.println(e.getProduct_name() + "  " + e.getBrand() + " " + e.getPrice() + " lei\n");
 
 
 
@@ -473,7 +470,19 @@ public class Main {
         }
 
     }
+   private void updatePriceProd(String product_name,String brand,Float price)
+   {
+       for (Product p : serviceP.getAllProducts())
+           if (p.getProduct_name().equals(product_name) && p.getBrand().equals(brand))
+               try {
+                   serviceP.updatePrice(product_name,brand,price);
+               }
+               catch(NullPointerException | InvalidDataExc e2) {
+                   System.out.println("NullPointerException!");
+               }
 
+
+   }
     private void listAllProdsContainingThisWord() {
         System.out.print("Name : ");
         String word = s.nextLine();
@@ -562,8 +571,8 @@ public class Main {
             }
 
         }
-        /* example for postal code: 50025*/
-        /*example for cardDetails: 411111111111111*/
+        /* example for postal code: 500025*/
+        /*example for cardDetails: 4111111111111111	*/
         if ((cardDetails.matches("^4[0-9]{12}(?:[0-9]{3})?$") || cardDetails.matches("^(5[1-5][0-9]{14}|2(22[1-9][0-9]{12}|2[3-9][0-9]{13}|[3-6][0-9]{14}|7[0-1][0-9]{13}|720[0-9]{12}))$")) && postalCode.matches("^\\d{6}$")) {
 
 
@@ -578,6 +587,7 @@ public class Main {
                 if (emailRegister.equals(e.getEmail())) {
                     Order ord = new Order(address, cardDetails, postalCode, eyes, lips, found);
                     e.setOrd(ord);
+
                 }
 
 
@@ -606,11 +616,11 @@ public class Main {
     }
 
     private void finishOrder() {
-
+        ///valid coupon: "ANDA"
         System.out.println("Coupon code:\n---------------------");
         String coup = s.nextLine();
         for (Client e : service.getAllClients()) {
-            if (e.getEmail().equals(emailRegister)) {
+            if (e.getEmail().equals(emailRegister)&&e.getOrd()!=null) {
                 System.out.println(e.getOrd().totalAmount());
                 e.getOrd().transportFreeAlert();
                 e.getOrd().addACoupon(coup);
@@ -680,6 +690,17 @@ public class Main {
                     System.out.println(ordDev1Repo.get(e.getOrd()).getCompanyName() + " " + ordDev1Repo.get(e.getOrd()).getDeliveryMan() + " " + ordDev1Repo.get(e.getOrd()).getPhoneNumber());
                 }
                 catch(NullPointerException e2) {
+                    System.out.println("NullPointerException!");
+                }
+    }
+    private void updateNameClient(String email,String name)
+    {
+        for (Client e : service.getAllClients())
+            if (e.getEmail().equals(email))
+                try {
+                 service.updateClient(email,name);
+                }
+                catch(NullPointerException | IOException | InvalidDataExc e2) {
                     System.out.println("NullPointerException!");
                 }
     }

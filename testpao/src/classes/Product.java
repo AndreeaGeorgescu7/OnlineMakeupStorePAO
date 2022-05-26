@@ -60,6 +60,13 @@ public class Product {
         this.ingredients = ingredients;
     }
 
+    public Product(String product_name, String brand, String valability, float price) {
+        this.product_name = product_name;
+        this.brand = brand;
+        this.valability = valability;
+        this.price = price;
+    }
+
     public Product() {
         this.product_name = null;
         this.brand = null;
@@ -77,6 +84,7 @@ public class Product {
     }
 
     public boolean isBIO() {
+      if(ingredients != null)
         for (String temp : ingredients) {
             String[] parts = temp.split(" ");
             for (String str : parts)
@@ -127,6 +135,7 @@ public class Product {
                 ", ingredients=" + ingredients +
                 '}';
     }
+    ///for writing in CSV files
     public String stringFormat() {
         return '\n'+ product_name + ',' +
                 brand + ',' +

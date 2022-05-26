@@ -10,6 +10,7 @@ public interface GenericRepo<T, S> {
 
     public void delete(T entity);
 
+
     public int getSize();
 
     public int getNumberOf();

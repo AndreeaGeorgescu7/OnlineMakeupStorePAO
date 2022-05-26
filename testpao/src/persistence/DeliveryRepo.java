@@ -41,7 +41,7 @@ public class DeliveryRepo implements GenericRepo<Delivery, String> {
     public void delete(Delivery entity) {
 
         Delivery[] newStorage = new Delivery[storage.length - 1];
-        ;
+
         int j = 0;
         for (int i = 0; i < storage.length; i++) {
             if (storage[i] != null && storage[i].hashCode() != entity.hashCode()) {
@@ -68,6 +68,8 @@ public class DeliveryRepo implements GenericRepo<Delivery, String> {
 
     }
 
+
+    ///the delivery man with the fewest orders
     public Delivery getMinim() {
         int mini = 100, pozMini = 0;
         for (int i = 0; i < storage.length && storage[i] != null; i++)

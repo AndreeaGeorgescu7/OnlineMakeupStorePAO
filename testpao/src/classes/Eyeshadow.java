@@ -12,6 +12,11 @@ public class Eyeshadow extends Product {
         this.colors = colors;
     }
 
+    public Eyeshadow(String product_name, String brand, String valability, float price, List<String> colors) {
+        super(product_name, brand, valability, price);
+        this.colors = colors;
+    }
+
     public Eyeshadow(List<String> colors) {
         this.colors = colors;
     }

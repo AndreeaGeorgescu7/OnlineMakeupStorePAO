@@ -31,6 +31,17 @@ public class Client {
         this.ord = ord;
     }
 
+    public Client(String name, String surname, char gender, int age, String email, String phone, boolean over18, int yearsOfFidelity) {
+        this.name = name;
+        this.surname = surname;
+        this.gender = gender;
+        this.age = age;
+        this.email = email;
+        this.phone = phone;
+        this.over18 = over18;
+        this.yearsOfFidelity = yearsOfFidelity;
+    }
+
     public String getName() {
         return name;
     }

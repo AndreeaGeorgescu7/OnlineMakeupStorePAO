@@ -2,3 +2,5 @@ name,surname,gender,age,email,phone,over18,yearsOfFidelity
 Georgescu,Andra,F,17,anda@gmail.com,745624587,0,2
 Calinescu,Petre,M,25,ptr@gmail.com,745623587,1,3
 Popescu,Mihai,M,40,mihh3@gmail.com,745624556,1,1
+
+Paula,Paula,paula@gmail.com,23

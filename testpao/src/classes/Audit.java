@@ -13,17 +13,17 @@ import java.nio.file.StandardOpenOption;
 import java.util.Date;
 
 public class Audit {
-    public static void writeAuditCSV(String actionName) throws IOException, InvalidDataExc {
-        Path pathToFile = Paths.get("Logs.csv");
+    public static void writeAuditCSV(String action) throws IOException, InvalidDataExc {
+        Path path = Paths.get("Logs.csv");
 
         try {
-            BufferedWriter br = Files.newBufferedWriter(pathToFile, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
-            br.write("\n" + actionName + "," + new Date());
+            BufferedWriter br = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+            br.write("\n" + action + "," + new Date());
             br.close();
         } catch (FileNotFoundException e) {
-            throw new InvalidDataExc("Fisierul Logs  nu a fost gasit!");
+            throw new InvalidDataExc("Fisierul Logs nu a fost gasit");
         } catch (IOException e) {
-            throw new InvalidDataExc("Eroare la citirea fisierului!", e);
+            throw new InvalidDataExc("Eroare la citire", e);
         }
     }
 }

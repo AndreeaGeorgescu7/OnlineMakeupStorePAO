@@ -12,6 +12,11 @@ public class Lips extends Product {
         this.shade = shade;
         this.type = type;
     }
+    public Lips(String product_name, String brand, String valability, float price, String shade, String type) {
+        super(product_name, brand, valability, price);
+        this.shade = shade;
+        this.type = type;
+    }
 
     public String getShade() {
         return shade;

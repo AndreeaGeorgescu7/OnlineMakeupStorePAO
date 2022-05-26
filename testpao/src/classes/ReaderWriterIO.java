@@ -14,7 +14,7 @@ import java.io.*;
 import persistence.*;
 
 public class ReaderWriterIO  {
-    private static ReaderWriterIO single_instance = null;
+    private static ReaderWriterIO instance = null;
     private static BufferedReader br;
     private static BufferedWriter bw;
     private int lastRead;
@@ -22,9 +22,6 @@ public class ReaderWriterIO  {
 
     private ReaderWriterIO() {}
 
-    private char readChar() throws IOException {
-        return (char) (lastRead = br.read());
-    }
     public static List<Client> readClient(String fileName) throws IOException {
 
         List<Client> clients = new ArrayList<>();
@@ -158,7 +155,7 @@ public class ReaderWriterIO  {
 //                    this.readFoundation("FoundationCSV");
 //                }
 //                else
-//                    System.out.println("Eroare la citirea din fisiere");
+//                    System.out.println("Eroare la citire");
 //
 //                line = br.readLine();
 //            }
@@ -173,11 +170,11 @@ public class ReaderWriterIO  {
 
 
              bw = Files.newBufferedWriter(pathToFile, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
-            String stringToWrite = String.format("\n%s,%s,%s,%d",
+            String string = String.format("\n%s,%s,%s,%d",
                     client.getName(),client.getSurname(),client.getEmail(),client.getAge());
 
 
-            bw.write(stringToWrite);
+            bw.write(string);
             bw.flush();
             bw.close();
 
@@ -269,9 +266,10 @@ public class ReaderWriterIO  {
             br.close();
         }
     }
-    public static synchronized ReaderWriterIO getInstance() {
-        if (single_instance == null)
-            single_instance = new ReaderWriterIO();
-        return single_instance;
+
+    public static  ReaderWriterIO getInstance() {
+        if (instance == null)
+            instance = new ReaderWriterIO();
+        return instance;
     }
 }

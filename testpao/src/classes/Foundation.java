@@ -13,6 +13,12 @@ public class Foundation extends Product {
         this.forTypeOfSkin = forTypeOfSkin;
     }
 
+    public Foundation(String product_name, String brand, String valability, float price, String foundationShade, String forTypeOfSkin) {
+        super(product_name, brand, valability, price);
+        this.foundationShade = foundationShade;
+        this.forTypeOfSkin = forTypeOfSkin;
+    }
+
     public String getFoundationShade() {
         return foundationShade;
     }

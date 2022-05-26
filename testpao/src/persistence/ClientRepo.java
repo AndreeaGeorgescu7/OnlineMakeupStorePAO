@@ -41,7 +41,7 @@ public class ClientRepo implements GenericRepo<Client, String> {
     public void delete(Client entity) {
 
         Client[] newStorage = new Client[storage.length - 1];
-        ;
+
         int j = 0;
         for (int i = 0; i < storage.length; i++) {
             if (storage[i] != null && storage[i].hashCode() != entity.hashCode()) {

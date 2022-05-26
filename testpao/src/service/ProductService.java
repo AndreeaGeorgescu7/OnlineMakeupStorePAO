@@ -5,6 +5,10 @@ import exceptions.InvalidDataExc;
 import persistence.*;
 
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 
 
@@ -12,15 +16,56 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
 
+
 public class ProductService {
 
     private ProductRepo product1Repo = new ProductRepo();
     private OrderRepo order1Repo = new OrderRepo();
     private DeliveryRepo delivery1Repo = new DeliveryRepo();
+    DBConnection dbConnection;
 
+    public ProductService(DBConnection connection) {
+        dbConnection = connection;
+    }
+    public void loadFromDB() {
+        try (Statement statement = dbConnection.getConnection().createStatement()) {
+
+            String query = "select * from lips";
+            ResultSet rs = statement.executeQuery(query);
+
+            while(rs.next()) {
+                Lips product = new Lips(rs.getString("product_name"), rs.getString("brand"),  rs.getString("valability"), rs.getFloat("price"), rs.getString("shade"), rs.getString("type"));
+
+                product1Repo.add(product);
+            }
+            query = "select * from eyeshadow";
+            rs = statement.executeQuery(query);
+
+            while(rs.next()) {
+                List<String> colors=new ArrayList<>();
+                colors.add(rs.getString("color"));
+              Eyeshadow product = new Eyeshadow(rs.getString("product_name"), rs.getString("brand"),  rs.getString("valability"), rs.getFloat("price"), colors);
+
+                product1Repo.add(product);
+            }
+            query = "select * from foundation";
+            rs = statement.executeQuery(query);
+
+            while(rs.next()) {
+
+                Foundation product = new Foundation(rs.getString("product_name"), rs.getString("brand"),  rs.getString("valability"), rs.getFloat("price"),rs.getString("shade"), rs.getString("type"));
+
+                product1Repo.add(product);
+            }
+
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void registerNewFoundation(String product_name, String brand, String valability, Float price, List<String> ingredients, String foundationShade, String forTypeOfSkin)
-            throws InvalidDataExc {
+            throws InvalidDataExc, IOException {
 
 
         if (product_name == null || product_name.trim().isEmpty()) {
@@ -38,10 +83,29 @@ public class ProductService {
         }
         Foundation entity = new Foundation(product_name, brand, valability, price, ingredients, foundationShade, forTypeOfSkin);
         product1Repo.add(entity);
+        try {
+            String query = "insert into foundation values(?,?,?,?,?,?)";
+            PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(query);
+
+            preparedStatement.setString(1, product_name);
+            preparedStatement.setString(2,brand);
+            preparedStatement.setString(3, valability);
+            preparedStatement.setFloat(4, price);
+            preparedStatement.setString(5, foundationShade);
+            preparedStatement.setString(6, forTypeOfSkin);
+
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        Audit.writeAuditCSV("addFoundation");
     }
 
     public void registerNewLips(String product_name, String brand, String valability, Float price, List<String> ingredients, String shade, String type)
-            throws InvalidDataExc {
+            throws InvalidDataExc, IOException {
 
 
         if (product_name == null || product_name.trim().isEmpty()) {
@@ -59,10 +123,31 @@ public class ProductService {
         }
         Lips entity = new Lips(product_name, brand, valability, price, ingredients, shade, type);
         product1Repo.add(entity);
+        try {
+            String query = "insert into lips values(?,?,?,?,?,?)";
+            PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(query);
+
+            preparedStatement.setString(1, product_name);
+            preparedStatement.setString(2,brand);
+            preparedStatement.setString(3, valability);
+            preparedStatement.setFloat(4, price);
+            preparedStatement.setString(5, shade);
+            preparedStatement.setString(6, type);
+
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        Audit.writeAuditCSV("addLips");
+
+
     }
 
     public void registerNewEyeshadow(String product_name, String brand, String valability, Float price, List<String> ingredients, List<String> colors)
-            throws InvalidDataExc {
+            throws InvalidDataExc, IOException {
 
 
         if (product_name == null || product_name.trim().isEmpty()) {
@@ -80,6 +165,25 @@ public class ProductService {
         }
         Eyeshadow entity = new Eyeshadow(product_name, brand, valability, price, ingredients, colors);
         product1Repo.add(entity);
+        try {
+            String query = "insert into eyeshadow values(?,?,?,?,?)";
+            PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(query);
+
+            preparedStatement.setString(1, product_name);
+            preparedStatement.setString(2,brand);
+            preparedStatement.setString(3, valability);
+            preparedStatement.setFloat(4, price);
+            preparedStatement.setString(5, colors.get(0));
+
+
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        Audit.writeAuditCSV("addEyeshadow");
     }
 
     public Product[] getAllProducts() {
@@ -89,6 +193,7 @@ public class ProductService {
                 result.add(product1Repo.get(i));
             }
         }
+                              //empty array
         return result.toArray(new Product[0]);
     }
 
@@ -101,13 +206,81 @@ public class ProductService {
                 ok = false;
 
         }
+        Class<? extends Product> clasa=product1Repo.get(i - 1).getClass();
         if (ok)
             throw new InvalidDataExc("Invalid Product");
 
         else
+        {
             product1Repo.delete(product1Repo.get(i - 1));
-    }
+          }
 
+
+        if(clasa.getName().equals("classes.Lips"))
+        try (Statement statement = dbConnection.getConnection().createStatement()) {
+            String query = "delete from lips where product_name=\""+product_name+"\" and brand=\""+brand+"\"";
+            statement.executeUpdate(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        else
+            if(clasa.getName().equals("classes.Foundation"))
+            try (Statement statement = dbConnection.getConnection().createStatement()) {
+                String query = "delete from foundation where product_name=\""+product_name+"\" and brand=\""+brand+"\"";
+                statement.executeUpdate(query);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            else
+                try (Statement statement = dbConnection.getConnection().createStatement()) {
+                    String query = "delete from eyeshadow where product_name=\""+product_name+"\" and brand=\""+brand+"\"";
+                    statement.executeUpdate(query);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+    }
+    public void updatePrice(String product_name,String brand,Float price) throws InvalidDataExc {
+
+        boolean ok = true;
+        int i;
+
+        for (i = 0; i < product1Repo.getNumberOf() && ok; i++) {
+            if (Objects.equals(product1Repo.get(i).getProduct_name(), product_name) && Objects.equals(product1Repo.get(i).getBrand(), brand))
+                ok = false;
+
+        }
+        if (ok)
+            throw new InvalidDataExc("Invalid Product");
+
+        else
+            product1Repo.get(i - 1).setPrice(price);
+        Class<? extends Product> clasa=product1Repo.get(i - 1).getClass();
+        System.out.println("clasa obiect: "+clasa.getName());
+        if(clasa.getName().equals("classes.Lips"))
+            try (Statement statement = dbConnection.getConnection().createStatement()) {
+                String query = "update lips set price= \""+price+"\"where product_name=\""+product_name+"\" and brand=\""+brand+"\"";
+                statement.executeUpdate(query);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        else
+        if(clasa.getName().equals("classes.Foundation"))
+            try (Statement statement = dbConnection.getConnection().createStatement()) {
+                String query = "update foundation set price= \""+price+"\" where product_name=\""+product_name+"\" and brand=\""+brand+"\"";
+                statement.executeUpdate(query);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        else
+            try (Statement statement = dbConnection.getConnection().createStatement()) {
+                String query = "update eyeshadow set price=\""+price+"\"where product_name=\""+product_name+"\" and brand=\""+brand+"\"";
+                statement.executeUpdate(query);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+
+    }
     public Product[] getAllProductsContainingThisWord(String word) {
         List<Product> result = new ArrayList<>();
         for (int i = 0; i < product1Repo.getSize(); i++) {
@@ -142,6 +315,7 @@ public class ProductService {
         if (postalCode == null || postalCode.trim().isEmpty()) {
             throw new InvalidDataExc("Invalid postal code");
         }
+        ///current date for the dateOfOrder attribute
         LocalDate myObj = LocalDate.now();
         Order entity = new Order(address, cardDetails, 50, String.format("%s", myObj), postalCode, 7, eyes, lip, found);
         order1Repo.add(entity);
