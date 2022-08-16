@@ -7,11 +7,11 @@ EMPLOYEE
 
 PRODUCT - check if a certain product contains an ingredient, what are the organic products, etc.
 
-EYESHADOW
+EYESHADOW-
 
-FOUNDATION
+FOUNDATION-
 
-LIPS
+LIPS-
 
 ORDER – returns  the total amount to pay, announce how much you have to spend to benefit of free shipping, add discount coupon
 
